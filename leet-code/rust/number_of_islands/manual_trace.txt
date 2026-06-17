@@ -1,0 +1,183 @@
+01011110101001011000
+11111010111010010011
+01001100000001101001
+10011101111001001000
+01111000100000110111
+11111110101010101100
+11101001101010011100
+10111101001001100011
+10000011110110001111
+00010111110000011110
+10101111101011101000
+01010011001111010011
+00111110111100000001
+01001000110010001110
+10111000000110000111
+00010000110011001110
+10011100000001100011
+00101010000101001011
+11011000110101010000
+00111110011001110101
+
+
+Row 1 - [(1, 2), (3, 7), (8, 9), (10, 11), (13, 14), (15, 17)]
+
+map = {
+    0 -> (1, 2),
+    1 -> (3, 7),
+    2 -> (8, 9),
+    3 -> (10, 11),
+    4 -> (13, 14),
+    5 -> (15, 17)
+}
+
+closed_islands = 0
+
+
+Row 2 - [(0, 5), (6, 7), (8, 11), (12, 13), (15, 16), (18, 20)]
+
+ (1, 2) <-> (0, 5)
+    - first overlap - reuse index 0 from prev
+    - curr is longer - next only on prev
+
+(3, 7) <-> (0, 5)
+    - overlap on same curr - reuse curr index - move prev slice to 0 (drops index 1 for prev as it had this single slice)
+    - curr end earlier - next only on curr
+
+(3, 7) <-> (6, 7)
+    - overlap on new curr - reuse index 0 from prev (moved on prev step)
+    - both end on same indexes - next for both
+
+(8, 9) <-> (8, 11)
+    - overlap on new curr - reuse index 2
+    - curr is longer - next only on prev
+
+(10, 11) <-> (8, 11)
+    - overlap on same curr - reuse curr index - move prev slice to 2 (drops index 3 for prev as it had this single slice)
+    - both end on same indexes - next for both
+
+(13, 14) <-> (12, 13)
+    - curr is before prev completely, no existing index for curr - new index
+    - curr end earlier - next only on curr
+
+(13, 14) <-> (15, 16)
+    - prev is before curr completely
+        - index on prev doesn't exist in current row
+        - prev row doesn't have other slices for the index to the right
+        - increase closed_islands by one
+    - curr doesn't have index - add with 7
+    - next prev
+
+(15, 17) <-> (15, 16)
+    - overlap - curr had index 7 and prev had index 5 - we replace all prev elements with 5 to 7
+    - next curr
+
+(15, 17) <-> (18, 20)
+    - no overlap - prev index exists in curr row - doesn't count as new closed island
+    - curr doesn't have index - add with 8
+    - next prev
+
+None <-> (18, 20)
+    - curr has index - do nothing
+    - next curr
+
+None <-> None
+    - break
+
+Row 2 summary:
+
+map = {
+    0 -> [(0, 5), (6, 7)],
+    2 -> [(8, 11)],
+    6 -> [(12, 13)],
+    7 -> [(15, 16)],
+    8 -> [(18, 20)],
+}
+
+closed_islands = 1
+
+Row 3 - [(1, 2), (4, 6), (13, 15), (16, 17), (19, 20)]
+
+(0, 5) <-> (1, 2)
+    - overlap, no existing index for curr, reuse prev index 0 for curr
+    - next curr
+
+(0, 5) <-> (4, 6)
+    - overlap, no existing index for curr, reuse prev index 0 for curr
+    - next prev
+
+(6, 7) <-> (4, 6)
+    - no overlap, curr had index, skip
+    - prev is longer, don't dismiss yet
+    - next curr
+
+(6, 7) <-> (13, 15)
+    - no overlap, prev had index 0 which exists in curr - doesn't count as new closed island
+    - curr doesn't have index - add with 9
+    - next prev
+
+(8, 11) <-> (13, 15)
+    - no overlap, prev has index 2 which doesn't exist in curr row and doesn't have further slices - increase closed_islands
+    - curr has index already - skip
+    - next prev
+
+(12, 13) <-> (13, 15)
+    - no overlap, prev has index 6 which doesn't exist in curr row and doesn't have further slices - increase closed_islands
+    - curr has index already - skip
+    - next prev
+
+(15, 16) <-> (13, 15)
+    - no overlap, prev is further so no actions yet,
+    - curr has index - skip
+    - next curr
+
+(15, 16) <-> (16, 17)
+    - no overlap, prev has index 7 which doesn't exist in curr row and doesn't have further slices - increase closed_islands
+    - curr doesn't have index - add with 10
+    - next prev
+
+(18, 20) <-> (16, 17)
+    - no overlap, prev is further so no actions yet,
+    - curr has index - skip
+    - next curr
+
+(18, 20) <-> (19, 20)
+    - overlap, no existing index for curr - reuse prev index 8 
+    - next both
+
+None <-> None
+    - break
+
+Row 3 summary:
+
+map = {
+    0 -> [(1, 2), (4, 6)],
+    9 -> [(13, 15)],
+    10 -> [(16, 17)],
+    8 -> [(19, 20)],
+}
+
+closed_islands = 4
+
+10011101111001001000    [(0, 1), (3, 6), (7, 11), (13, 14), (16, 17)]
+
+
+
+
+
+01111000100000110111    [(1, 5), (8, 9), (14, 16), (17, 20)]
+11111110101010101100    [(0, 7), (8, 9), (10, 11), (12, 13), (14, 15), (16, 18)]
+11101001101010011100    [(0, 3), (4, 5), (7, 9), (10, 11), (12, 13), (15, 18)]
+10111101001001100011    [(0, 1), (2, 6), (7, 8), (10, 11), (13, 15), (18, 20)]
+10000011110110001111    [(0, 1), (6, 10), (11, 13), (16, 20)]
+00010111110000011110    [(3, 4), (5, 10), (15, 19)]
+10101111101011101000    [(0, 1), (2, 3), (4, 9), (10, 11), (12, 15), (16, 17)]
+01010011001111010011    [(1, 2), (3, 4), (6, 8), (10, 14), (15, 16), (18, 20)]
+00111110111100000001    [(2, 7), (8, 12), (19, 20)]
+01001000110010001110    [(1, 2), (4, 5), (8, 10), (12, 13), (16, 19)]
+10111000000110000111    [(0, 1), (2, 5), (11, 13), (17, 20)]
+00010000110011001110    [(3, 4), (8, 10), (12, 14), (16, 19)]
+10011100000001100011    [(0, 1), (3, 6), (13, 15), (18, 20)]
+00101010000101001011    [(2, 3), (4, 5), (6, 7), (11, 12), (13, 14), (16, 17), (18, 20)]
+11011000110101010000    [(0, 2), (3, 5), (8, 10), (11, 12), (13, 14), (15, 16)]
+00111110011001110101    [(2, 7), (9, 11), (13, 16), (17, 18), (19, 20)]
